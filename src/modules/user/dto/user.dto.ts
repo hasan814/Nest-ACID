@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsMobilePhone, IsNumber } from 'class-validator';
+import { IsString, IsNotEmpty, IsMobilePhone } from 'class-validator';
 
 export class CreateUserDto {
   @IsMobilePhone('fa-IR')
@@ -8,6 +8,4 @@ export class CreateUserDto {
   @IsNotEmpty()
   fullname: string;
 
-  @IsNumber()
-  amount: number;
 }

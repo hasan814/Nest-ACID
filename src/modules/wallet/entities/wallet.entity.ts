@@ -12,6 +12,9 @@ export class WalletEntity extends BaseEntity {
   @Column()
   invoice_number: string
 
+  @Column({ type: 'numeric' })
+  amount: number
+
   @CreateDateColumn()
   created_at: Date
 
