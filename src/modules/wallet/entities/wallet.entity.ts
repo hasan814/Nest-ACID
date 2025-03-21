@@ -15,6 +15,12 @@ export class WalletEntity extends BaseEntity {
   @Column({ type: 'numeric' })
   amount: number
 
+  @Column({ nullable: true })
+  reason: string
+
+  @Column({ nullable: true })
+  productId: number
+
   @CreateDateColumn()
   created_at: Date
 

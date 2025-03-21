@@ -1,9 +1,10 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { WalletEntity } from './entities/wallet.entity';
 import { UserService } from '../user/user.service';
-import { Injectable } from '@nestjs/common';
-import { DepositDto } from './dto/wallet.dto';
+import { ProductList } from 'src/common/utils/ProductList';
+import { DepositDto, WithdrawDto } from './dto/wallet.dto';
 import { UserEntity } from '../user/entities/user.entity';
 import { WalletType } from './enum/wallet.enum';
 
@@ -41,6 +42,49 @@ export class WalletService {
     }
 
     return { message: "Payment Successfully!" }
+  }
+
+  async paymentByWallet(withdrawDto: WithdrawDto) {
+    const { productId, userId } = withdrawDto
+    const product = ProductList.find(product => product.id === productId);
+    if (!product) throw new NotFoundException('Product not found');
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const user = await queryRunner.manager.findOneBy(UserEntity, { id: userId });
+      if (!user) throw new NotFoundException('User not found');
+      if (user.balance < product.price) throw new Error('Insufficient wallet balance');
+      const updatedBalance = user.balance - product.price;
+      await queryRunner.manager.update(UserEntity, { id: userId }, { balance: updatedBalance });
+      await queryRunner.manager.insert(WalletEntity, {
+        userId,
+        productId,
+        amount: product.price,
+        type: WalletType.Withdraw,
+        reason: "buy product" + product.name,
+        invoice_number: Date.now().toString(),
+      });
+
+      await queryRunner.commitTransaction();
+      await queryRunner.release();
+
+      return {
+        message: 'Payment successful',
+        product: {
+          id: product.id,
+          name: product.name,
+          price: product.price,
+        },
+        remainingBalance: updatedBalance,
+      };
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      await queryRunner.release();
+      throw error;
+    }
   }
 
 }

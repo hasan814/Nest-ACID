@@ -18,3 +18,13 @@ export class DepositDto {
   @Min(1000, { message: 'Minimum deposit amount is 1000' })
   amount: number;
 }
+
+export class WithdrawDto {
+  @IsNumber({}, { message: 'Product ID must be a number' })
+  @Min(1, { message: 'Invalid Product ID' })
+  productId: number;
+
+  @IsNumber({}, { message: 'User ID must be a number' })
+  @Min(1, { message: 'Invalid User ID' })
+  userId: number;
+}
