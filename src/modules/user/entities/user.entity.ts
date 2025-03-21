@@ -1,7 +1,7 @@
 import { Column, CreateDateColumn, Entity, OneToMany } from "typeorm";
+import { WalletEntity } from "src/modules/wallet/entities/wallet.entity";
 import { BaseEntity } from "src/common/abstract/base.entity";
 import { EntityName } from "src/common/enums/entity.enum";
-import { WalletEntity } from "src/modules/wallet/entities/wallet.entity";
 
 @Entity(EntityName.User)
 export class UserEntity extends BaseEntity {
